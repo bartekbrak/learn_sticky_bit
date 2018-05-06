@@ -1,9 +1,9 @@
-## Learn sticky bit 
+## Learn sticky bit
 
 Read: https://en.wikipedia.org/wiki/Sticky_bit
 
 > In computing, the sticky bit is a user ownership access right flag that can be assigned to files and directories on Unix-like systems.
-> 
+>
 > When a directory's sticky bit is set, the filesystem treats the files in such directories in a special way so only the file's owner, the directory's owner, or root user can rename or delete the file. Without the sticky bit set, any user with write and execute permissions for the directory can rename or delete contained files, regardless of the file's owner. Typically this is set on the /tmp directory to prevent ordinary users from deleting or moving other users' files.
 
 prepare dependencies:
@@ -12,7 +12,7 @@ prepare dependencies:
 
 Read, copy and paste into shell, read output.
 
-    # sticky realtes to interactions among users based on permissions
+    # sticky relates to interactions among users based on permissions
     # we'll create a user, don't worry, all will be cleaned up afterwards
     sudo adduser other --no-create-home --disabled-password --disabled-login --gecos ''
 
@@ -42,7 +42,7 @@ Read, copy and paste into shell, read output.
 
     # let's enable sticky bit
     # mine is still 777 but renaming, removing fail, other operations are fine
-    chmod +t mine  
+    chmod +t mine
     tree -p
     # Note how error message changes
     sudo su other -c 'mv mine/sticky_will_protect_me mine/cant_rename_with_sticky'  # Operation not permitted
@@ -50,8 +50,8 @@ Read, copy and paste into shell, read output.
     sudo su other -c 'rm -f mine'                                                   # Operation not permitted
     sudo su other -c 'touch mine/can_create_with_sticky'                            # fine
 
-    # let's disable sticky bit and see that 777 enables
-    chmod +t mine  
+    # let's disable sticky bit and see what 777 enables
+    chmod +t mine
     sudo su other -c 'mv mine/sticky_will_protect_me mine/can_rename'               # fine
     sudo su other -c 'rm -f mine/sticky_will_protect_me'                            # fine
     sudo su other -c 'rm -f mine'                                                   # fine
@@ -61,7 +61,7 @@ Read, copy and paste into shell, read output.
     sudo rm -r /learn_sticky_bit
     sudo deluser other
 
-This tutorial assumes Linux and standard umask 0002, verify yours:
+This tutorial assumes debian based Linux and standard umask 0002, verify yours:
 
     $ umask
     0002
