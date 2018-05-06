@@ -17,23 +17,24 @@ Read, copy and paste into shell, read output.
     sudo chmod 777 /learn_sticky_bit
     cd /learn_sticky_bit
     mkdir mine
-    touch mine/1
-    touch mine/2
-    chmod o+w mine/2
-    touch mine/3
+    touch mine/rename_me
+    touch mine/remove_me
+    chmod o+w mine/remove_me
+    touch mine/sticky_will_protect_me
     tree -p
-    sudo su other -c 'mv mine/1 mine/cant_rename'  # Permission denied
-    sudo su other -c 'touch mine/cant_create'  # Permission denied
-    sudo su other -c 'rm -f mine/2'  # Permission denied
+    sudo su other -c 'mv mine/rename_me mine/cant_rename'  # Permission denied
+    sudo su other -c 'touch mine/cant_create'              # Permission denied
+    sudo su other -c 'rm -f mine/remove_me'                # Permission denied
     chmod o+w mine
-    sudo su other -c 'mv mine/1 mine/can_rename'  # fine
-    sudo su other -c 'touch mine/can_create'  # fine
-    sudo su other -c 'rm mine/2'  # fine
+    sudo su other -c 'mv mine/rename_me mine/can_rename'   # fine
+    sudo su other -c 'touch mine/can_create'               # fine
+    sudo su other -c 'rm mine/remove_me'                   # fine
     chmod +t mine  # mine dir is still 777 but renaming will fail
     tree -p
-    sudo su other -c 'mv mine/3 mine/cant_rename_with_sticky'  # Operation not permitted
-    sudo su other -c 'rm -f mine/3'  # Operation not permitted
-    sudo su other -c 'touch mine/can_create_with_sticky'  # fine
+    # Note how error message changes
+    sudo su other -c 'mv mine/sticky_will_protect_me mine/cant_rename_with_sticky'  # Operation not permitted
+    sudo su other -c 'rm -f mine/sticky_will_protect_me'                            # Operation not permitted
+    sudo su other -c 'touch mine/can_create_with_sticky'                            # fine
     # cleanup
     cd -
     sudo rm -r /learn_sticky_bit
