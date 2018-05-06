@@ -12,7 +12,12 @@ prepare dependencies:
 
 Read, copy and paste into shell, read output.
 
+    # sticky realtes to interactions among users based on permissions
+    # we'll create a user, don't worry, all will be cleaned up afterwards
     sudo adduser other --no-create-home --disabled-password --disabled-login --gecos ''
+
+    # let's create a sandbox dir so parent directories don't affect
+    # permissions (https://unix.stackexchange.com/a/13891/25780)
     sudo mkdir /learn_sticky_bit
     sudo chmod 777 /learn_sticky_bit
     cd /learn_sticky_bit
@@ -22,20 +27,41 @@ Read, copy and paste into shell, read output.
     chmod o+w mine/remove_me
     touch mine/sticky_will_protect_me
     tree -p
-    sudo su other -c 'mv mine/rename_me mine/cant_rename'  # Permission denied
-    sudo su other -c 'touch mine/cant_create'              # Permission denied
-    sudo su other -c 'rm -f mine/remove_me'                # Permission denied
+
+    # other can't do anything in a dir belonging to someone else without
+    # write permissions
+    sudo su other -c 'mv mine/rename_me mine/cant_rename'                            # Permission denied
+    sudo su other -c 'touch mine/cant_create'                                        # Permission denied
+    sudo su other -c 'rm -f mine/remove_me'                                          # Permission denied
+
+    # let's allow other to mess with our files, now mine is 777
     chmod o+w mine
-    sudo su other -c 'mv mine/rename_me mine/can_rename'   # fine
-    sudo su other -c 'touch mine/can_create'               # fine
-    sudo su other -c 'rm mine/remove_me'                   # fine
-    chmod +t mine  # mine dir is still 777 but renaming will fail
+    sudo su other -c 'mv mine/rename_me mine/can_rename'                             # fine
+    sudo su other -c 'touch mine/can_create'                                         # fine
+    sudo su other -c 'rm mine/remove_me'                                             # fine
+
+    # let's enable sticky bit
+    # mine is still 777 but renaming, removing fail, other operations are fine
+    chmod +t mine  
     tree -p
     # Note how error message changes
     sudo su other -c 'mv mine/sticky_will_protect_me mine/cant_rename_with_sticky'  # Operation not permitted
     sudo su other -c 'rm -f mine/sticky_will_protect_me'                            # Operation not permitted
+    sudo su other -c 'rm -f mine'                                                   # Operation not permitted
     sudo su other -c 'touch mine/can_create_with_sticky'                            # fine
+
+    # let's disable sticky bit and see that 777 enables
+    chmod +t mine  
+    sudo su other -c 'mv mine/sticky_will_protect_me mine/can_rename'               # fine
+    sudo su other -c 'rm -f mine/sticky_will_protect_me'                            # fine
+    sudo su other -c 'rm -f mine'                                                   # fine
+
     # cleanup
     cd -
     sudo rm -r /learn_sticky_bit
     sudo deluser other
+
+This tutorial assumes Linux and standard umask 0002, verify yours:
+
+    $ umask
+    0002
